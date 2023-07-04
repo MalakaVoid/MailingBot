@@ -20,10 +20,10 @@ class ReplyST(StatesGroup):
 
 @dp.message_handler(state=ReplyST.enterMessage)
 async def get_message_to_reply(message: types.Message, state: FSMContext):
-    await send_messages_to_groups(message.text)
+    str_report = await send_messages_to_groups(message.text)
     await state.finish()
     await bot.send_message(message.chat.id,
-                           text="Сообщения успешно отправлены",
+                           text=str_report,
                            reply_markup=get_unline_keyboard('5'))
 
 
@@ -89,7 +89,10 @@ async def ik_cb_back_btn_handler(callback: types.CallbackQuery):
 async def get_all_reply_groups():
     result = "Группы для рассылки:\n"
     for group in group_host:
-        result += group.title + "\n"
+        try:
+            result += group.title + "\n"
+        except Exception:
+            continue
     return result
 
 
@@ -98,9 +101,18 @@ async def add_group_to_reply(group_chat):
         group_host.append(group_chat)
 
 async def send_messages_to_groups(message_to_send):
+    str_result = ""
     for group in group_host:
-        await bot.send_message(chat_id=group.id,
+        try:
+            await bot.send_message(chat_id=group.id,
                                text=message_to_send)
+            str_result+=f"Сообщение в группу {group.title} успешно отправлено\n"
+        except Exception:
+            print(Exception)
+            str_result+="С одной из групп произошла проблема! \n"
+            continue
+    return str_result
+
 
 if __name__ == '__main__':
     executor.start_polling(dp,
