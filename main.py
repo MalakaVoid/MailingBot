@@ -45,7 +45,7 @@ async def ik_cb_del_btns_handler(callback: types.CallbackQuery):
 
 @dp.message_handler(commands=['start'])
 async def hello_msg(message: types.Message):
-    if (message.chat.type=="group"):
+    if (message.chat.type=="group" and message.from_user.username in admins):
         await bot.send_message(message.chat.id,
                                text="Добавить группу в рассылку?",
                                reply_markup=get_unline_keyboard('1'))
@@ -53,6 +53,9 @@ async def hello_msg(message: types.Message):
         await bot.send_message(message.chat.id,
                                text="Выберите опцию:",
                                reply_markup=get_unline_keyboard('3'))
+    else:
+        await bot.send_message(text="У вас нет доступа к этому боту!",
+                               chat_id=message.chat.id)
 
 
 @dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('reply_btn'))
