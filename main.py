@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, InlineKeyboardMarkup, \
     InlineKeyboardButton, CallbackQuery
 from aiogram.utils.callback_data import CallbackData
+from db_controller import delete_group_from_database, delete_admin_from_database, add_group_to_database,add_admin_to_database, is_admin_here, get_chat_ids
 from globals import TOKEN_API, group_title,group_chat_id, admins
 from keyboards import get_inline_keyboard
 from datetime import datetime, timedelta
@@ -21,11 +22,11 @@ class ReplyST(StatesGroup):
 @dp.message_handler(state=ReplyST.enterMessage, content_types=Text)
 async def get_message_to_mail(message: types.Message, state: FSMContext):
     if message.chat.type == "private":
-    #Проверка администратора
-        await bot.send_message(message.chat.id,
-                               text=message.text,
-                               reply_markup=get_inline_keyboard('check_correctness_msg_ikb'))
-        await state.finish()
+        if is_admin_here(message.chat.username):
+            await bot.send_message(message.chat.id,
+                                   text=message.text,
+                                   reply_markup=get_inline_keyboard('check_correctness_msg_ikb'))
+            await state.finish()
 
 @dp.message_handler(state=None)
 async def get_message_of_group(message: types.Message):
@@ -35,8 +36,9 @@ async def get_message_of_group(message: types.Message):
 
 @dp.message_handler(commands=['start'])
 async def start_btn_hndl(message: types.Message):
-    if message.chat.type=="private":
-        await send_main_menu_mes(message.chat.id)
+    if message.chat.type == "private":
+        if is_admin_here(message.chat.username):
+            await send_main_menu_mes(message.chat.id)
 
 @dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('mm_btn'))
 async def main_menu_ikb_hndl(callback: types.CallbackQuery):
@@ -44,7 +46,6 @@ async def main_menu_ikb_hndl(callback: types.CallbackQuery):
         await callback.message.edit_text(text='Введите сообщение для рассылки',
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
         await ReplyST.enterMessage.set()
-        #Функция для рассылки
     elif callback.data == 'mailings_groups_mm_btn':
         a=1
         #Функция для получения всех групп для рассылки
