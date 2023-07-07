@@ -19,6 +19,12 @@ dp = Dispatcher(bot,
 class ReplyST(StatesGroup):
     enterMessage = State()
 
+@dp.message_handler(commands=['start'])
+async def start_btn_hndl(message: types.Message):
+    if message.chat.type == "private":
+        if is_admin_here(message.chat.username):
+            await send_main_menu_mes(message.chat.id)
+
 @dp.message_handler(state=ReplyST.enterMessage, content_types=Text)
 async def get_message_to_mail(message: types.Message, state: FSMContext):
     if message.chat.type == "private":
@@ -34,18 +40,14 @@ async def get_message_of_group(message: types.Message):
         if message.chat.title not in group_title and message.chat.id not in group_chat_id:
             await add_group_to_db(message.chat)
 
-@dp.message_handler(commands=['start'])
-async def start_btn_hndl(message: types.Message):
-    if message.chat.type == "private":
-        if is_admin_here(message.chat.username):
-            await send_main_menu_mes(message.chat.id)
+
 
 @dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('mm_btn'))
 async def main_menu_ikb_hndl(callback: types.CallbackQuery):
     if callback.data == 'start_mailing_mm_btn':
+        await ReplyST.enterMessage.set()
         await callback.message.edit_text(text='Введите сообщение для рассылки',
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
-        await ReplyST.enterMessage.set()
     elif callback.data == 'mailings_groups_mm_btn':
         str_groups=""
         for each in group_title:
