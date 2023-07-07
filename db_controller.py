@@ -15,10 +15,10 @@ def get_chat_ids():
     data = [each[0] for each in data_temp]
     return data
 
-def delete_group_from_database(id: str):
+def delete_group_from_database(title: str):
     sqlite_connection = sqlite3.connect('DB_data.db')
     cursor = sqlite_connection.cursor()
-    delete_group_from_database = f"DELETE FROM group_data WHERE id = '{id}'"
+    delete_group_from_database = f"DELETE FROM group_data WHERE title = '{title}'"
     cursor.execute(delete_group_from_database)
     sqlite_connection.commit()
 
