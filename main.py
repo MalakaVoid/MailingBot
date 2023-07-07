@@ -63,9 +63,14 @@ async def cancel_mailing_btn(callback: types.CallbackQuery, state: FSMContext):
 async def cancel_mailing_err_btn(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.delete_reply_markup()
 
-@dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('c_btn'), state=None)
-async def cancel_mailing_err_btn(callback: types.CallbackQuery, state: FSMContext):
-    await callback.message.delete_reply_markup()
+@dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('msg_btn'))
+async def check_correctness_ikb_hndl(callback: types.CallbackQuery, state: FSMContext):
+    if callback.data == 'send_mail_msg_btn':
+        await send_messages_to_groups() #доделать
+    elif callback.data == 'edit_msg_btn':
+        await ReplyST.enterMessage.set()
+        await callback.message.edit_text(text='Введите сообщение для рассылки',
+                                         reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
 
 async def send_main_menu_mes(chat_id):
     await bot.send_message(chat_id=chat_id,
@@ -76,6 +81,9 @@ async def add_group_to_db(chat_ex):
     group_title.append(chat_ex.title)
     group_chat_id.append(chat_ex.id)
     add_group_to_database(chat_ex.id, chat_ex.title, chat_ex.type)
+
+async def send_messages_to_groups():
+    print("mail")
 
 
 
