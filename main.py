@@ -29,10 +29,10 @@ async def start_btn_hndl(message: types.Message):
 async def get_message_to_mail(message: types.Message, state: FSMContext):
     if message.chat.type == "private":
         if is_admin_here(message.chat.username):
+            await state.finish()
             await bot.send_message(message.chat.id,
                                    text=message.text,
                                    reply_markup=get_inline_keyboard('check_correctness_msg_ikb'))
-            await state.finish()
 
 @dp.message_handler(state=None)
 async def get_message_of_group(message: types.Message):
