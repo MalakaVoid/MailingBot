@@ -45,3 +45,16 @@ def delete_admin_from_database(user_name: str):
     cursor.execute(delete_admin_from_database)
     sqlite_connection.commit()
 
+def parse_group_chat_ids_into_arr():
+    sqlite_connection = sqlite3.connect('DB_data.db')
+    cursor = sqlite_connection.cursor()
+    select_group_chat_ids_from_database = "SELECT id FROM group_data"
+    arr_of_ids = [each[0] for each in cursor.execute(select_group_chat_ids_from_database).fetchall()]
+    return arr_of_ids
+
+def parse_group_chat_titles_into_arr():
+    sqlite_connection = sqlite3.connect('DB_data.db')
+    cursor = sqlite_connection.cursor()
+    select_group_chat_titles_from_database = "SELECT title FROM group_data"
+    arr_of_titles = [each[0] for each in cursor.execute(select_group_chat_titles_from_database).fetchall()]
+    return arr_of_titles
