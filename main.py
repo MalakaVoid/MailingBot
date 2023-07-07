@@ -48,9 +48,12 @@ async def get_message_group_title_to_delete(message: types.Message, state: FSMCo
                                        text="Данная группа не найдена, попробуйте еще раз",
                                        reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
             else:
-
-
-
+                await state.finish()
+                delete_group_from_database(message.text)
+                await bot.leave_chat(chat_id=)
+                await bot.send_message(message.chat.id,
+                                       text="Группа успешно удалена!",
+                                       reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
 
 @dp.message_handler(state=None)
 async def get_message_of_group(message: types.Message):
