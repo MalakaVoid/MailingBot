@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, InlineKeyboardMarkup, \
     InlineKeyboardButton, CallbackQuery
 from aiogram.utils.callback_data import CallbackData
-from db_controller import delete_group_from_database, delete_admin_from_database, add_group_to_database,add_admin_to_database, is_admin_here, get_chat_ids, parse_group_chat_ids_into_arr, parse_group_chat_titles_into_arr
+from db_controller import delete_group_from_database, delete_admin_from_database, add_group_to_database,add_admin_to_database, is_admin_here, get_chat_ids, parse_group_chat_ids_into_arr, parse_group_chat_titles_into_arr, chat_id_by_title_group
 from globals import TOKEN_API, group_title,group_chat_id, admins
 from keyboards import get_inline_keyboard
 from datetime import datetime, timedelta
@@ -49,8 +49,11 @@ async def get_message_group_title_to_delete(message: types.Message, state: FSMCo
                                        reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
             else:
                 await state.finish()
+                id_chat_to_del = chat_id_by_title_group(message.text)
+                await bot.leave_chat(chat_id=id_chat_to_del)
                 delete_group_from_database(message.text)
-                await bot.leave_chat(chat_id=)
+                group_title.remove(message.text)
+                group_chat_id.remove(id_chat_to_del)
                 await bot.send_message(message.chat.id,
                                        text="Группа успешно удалена!",
                                        reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
@@ -111,8 +114,8 @@ async def send_main_menu_mes(chat_id):
                            reply_markup=get_inline_keyboard('main_menu_ikb'))
 
 async def add_group_to_db(chat_ex):
-    group_title.append(chat_ex.title)
-    group_chat_id.append(chat_ex.id)
+    group_title.append(str(chat_ex.title))
+    group_chat_id.append(str(chat_ex.id))
     add_group_to_database(chat_ex.id, chat_ex.title, chat_ex.type)
 
 async def send_messages_to_groups(msg_text):
