@@ -47,8 +47,11 @@ async def main_menu_ikb_hndl(callback: types.CallbackQuery):
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
         await ReplyST.enterMessage.set()
     elif callback.data == 'mailings_groups_mm_btn':
-        a=1
-        #Функция для получения всех групп для рассылки
+        str_groups=""
+        for each in group_title:
+            str_groups += each + "\n"
+        await bot.send_message(callback.message.chat.id,
+                               text=str_groups)
     elif callback.data == 'del_mailing_group_mm_btn':
         a=1
         #Функция для удаления группы из рассылки

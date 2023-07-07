@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f8d18dfd-6cc7-413c-9003-fba77106f0d5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DB_data.db" beforeDir="false" afterPath="$PROJECT_DIR$/DB_data.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -34,7 +35,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.db_controller">
+  <component name="RunManager" selected="Python.main">
     <configuration name="db_controller" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="MailingBot" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -119,7 +120,7 @@
       <updated>1688485283980</updated>
       <workItem from="1688485292486" duration="5130000" />
       <workItem from="1688644137153" duration="4345000" />
-      <workItem from="1688731689597" duration="2989000" />
+      <workItem from="1688731689597" duration="3822000" />
     </task>
     <servers />
   </component>
