@@ -11,8 +11,8 @@ def get_chat_ids():
     sqlite_connection = sqlite3.connect('DB_data.db')
     cursor = sqlite_connection.cursor()
     select_id_from_database = "SELECT id from group_data"
-    data_temp = cursor.execute(select_id_from_database).fetchone()
-    data = [each for each in data_temp]
+    data_temp = cursor.execute(select_id_from_database).fetchall()
+    data = [each[0] for each in data_temp]
     return data
 
 def delete_group_from_database(id: str):

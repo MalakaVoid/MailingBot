@@ -25,4 +25,9 @@ def get_inline_keyboard(id) -> InlineKeyboardMarkup:
             [InlineKeyboardButton(text="Изменить",
                                   callback_data='edit_msg_btn')]
         ])
+    elif id == 'back_mm_sh_ikb':
+        ikb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="Назад",
+                                  callback_data='back_sh_btn')]
+        ])
     return ikb
