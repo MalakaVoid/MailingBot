@@ -75,7 +75,7 @@ async def send_main_menu_mes(chat_id):
 async def add_group_to_db(chat_ex):
     group_title.append(chat_ex.title)
     group_chat_id.append(chat_ex.id)
-    #Функция для добавления в бд
+    add_group_to_database(chat_ex.id, chat_ex.title, chat_ex.type)
 
 
 
