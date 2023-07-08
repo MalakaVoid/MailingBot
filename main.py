@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButt
     InlineKeyboardButton, CallbackQuery
 from aiogram.utils.callback_data import CallbackData
 from db_controller import delete_group_from_database, delete_admin_from_database, add_group_to_database,add_admin_to_database, is_admin_here, get_chat_ids, parse_group_chat_ids_into_arr, parse_group_chat_titles_into_arr, chat_id_by_title_group
-from globals import TOKEN_API, group_title,group_chat_id, admins
+from globals import TOKEN_API, group_title,group_chat_id
 from keyboards import get_inline_keyboard
 from datetime import datetime, timedelta
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -24,11 +24,40 @@ class ReplyST(StatesGroup):
 class DeleteGroupST(StatesGroup):
     enterGroupName = State()
 
+class AdminMngm(StatesGroup):
+    addAdmin = State()
+    delAdmin = State()
+
 @dp.message_handler(commands=['start'])
 async def start_btn_hndl(message: types.Message):
     if message.chat.type == "private":
         if is_admin_here(message.chat.username):
             await send_main_menu_mes(message.chat.id)
+
+@dp.message_handler(state=AdminMngm.addAdmin)
+async def add_admin_to_db_hndl(message: types.Message, state: FSMContext):
+    if message.chat.type == "private":
+        if is_admin_here(message.chat.username):
+            add_admin_to_database(message.text)
+            await state.finish()
+            await bot.send_message(message.chat.id,
+                                   text="Новый админ успешно добавлен",
+                                   reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
+
+@dp.message_handler(state=AdminMngm.delAdmin)
+async def del_admin_to_db_hndl(message: types.Message, state: FSMContext):
+    if message.chat.type == "private":
+        if is_admin_here(message.chat.username):
+            if is_admin_here(message.text):
+                delete_admin_from_database(message.text)
+                await state.finish()
+                await bot.send_message(message.chat.id,
+                                       text="Админ успешно удален",
+                                       reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
+            else:
+                await bot.send_message(message.chat.id,
+                                       text="Такого админа не существует. Попробуйте еще раз.",
+                                       reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
 
 @dp.message_handler(state=ReplyST.enterMessage)
 async def get_message_to_mail(message: types.Message, state: FSMContext):
@@ -71,7 +100,7 @@ async def main_menu_ikb_hndl(callback: types.CallbackQuery):
         await callback.message.edit_text(text='Введите сообщение для рассылки',
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
     elif callback.data == 'mailings_groups_mm_btn':
-        str_groups=""
+        str_groups = ""
         for each in group_title:
             str_groups += each + "\n"
         await callback.message.edit_text(text=str_groups,
@@ -80,8 +109,17 @@ async def main_menu_ikb_hndl(callback: types.CallbackQuery):
         await DeleteGroupST.enterGroupName.set()
         await callback.message.edit_text(text="Введите название группы для удаления",
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
+    elif callback.data == 'add_admin_mm_btn':
+        await AdminMngm.addAdmin.set()
+        await callback.message.edit_text(text="Введите ник админа",
+                                         reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
+    elif callback.data == 'del_admin_mm_btn':
+        await AdminMngm.delAdmin.set()
+        await callback.message.edit_text(text="Введите ник админа",
+                                         reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
 
-@dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('c_btn'), state=[ReplyST.enterMessage, DeleteGroupST.enterGroupName])
+
+@dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('c_btn'), state=[ReplyST.enterMessage, DeleteGroupST.enterGroupName, AdminMngm.delAdmin, AdminMngm.addAdmin])
 async def cancel_mailing_btn(callback: types.CallbackQuery, state: FSMContext):
     await state.finish()
     await send_main_menu_mes(callback.message.chat.id)
@@ -119,8 +157,7 @@ async def add_group_to_db(chat_ex):
     add_group_to_database(chat_ex.id, chat_ex.title, chat_ex.type)
 
 async def send_messages_to_groups(msg_text):
-    groups_ids = get_chat_ids()
-    for each in groups_ids:
+    for each in group_chat_id:
         await bot.send_message(chat_id=each,
                                text=msg_text)
 
