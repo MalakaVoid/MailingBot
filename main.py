@@ -177,9 +177,6 @@ async def send_messages_to_groups(callback):
     await callback.message.edit_text(text=str_result,
                            reply_markup = get_inline_keyboard('back_mm_sh_ikb'))
 
-
-
-
 if __name__ == '__main__':
     executor.start_polling(dp,
                            skip_updates=True)
