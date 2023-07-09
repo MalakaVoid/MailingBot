@@ -65,3 +65,10 @@ def chat_id_by_title_group(title: str):
     select_group_by_title_in_database = f"SELECT id FROM group_data WHERE title = '{title}'"
     answer = cursor.execute(select_group_by_title_in_database).fetchone()[0]
     return answer
+
+def catch_admins_from_database():
+    sqlite_connection = sqlite3.connect('DB_data.db')
+    cursor = sqlite_connection.cursor()
+    select_admins_from_database = "SELECT user_name FROM admins"
+    answer = [each[0] for each in cursor.execute(select_admins_from_database).fetchall()]
+    return answer
