@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, InlineKeyboardMarkup, \
     InlineKeyboardButton, CallbackQuery
 from aiogram.utils.callback_data import CallbackData
-from db_controller import delete_group_from_database, delete_admin_from_database, add_group_to_database,add_admin_to_database, is_admin_here, get_chat_ids, parse_group_chat_ids_into_arr, parse_group_chat_titles_into_arr, chat_id_by_title_group
+from db_controller import delete_group_from_database, delete_admin_from_database, add_group_to_database,add_admin_to_database, is_admin_here, get_chat_ids, parse_group_chat_ids_into_arr, parse_group_chat_titles_into_arr, chat_id_by_title_group, catch_admins_from_database
 from globals import TOKEN_API, group_title,group_chat_id
 from keyboards import get_inline_keyboard
 from datetime import datetime, timedelta
@@ -109,7 +109,13 @@ async def main_menu_ikb_hndl(callback: types.CallbackQuery):
         await DeleteGroupST.enterGroupName.set()
         await callback.message.edit_text(text="Введите название группы для удаления",
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
-    elif callback.data == 'add_admin_mm_btn':
+    elif callback.data == 'admins_panel_mm_btn':
+        await callback.message.edit_text(text="Выберите опцию",
+                                         reply_markup=get_inline_keyboard('admins_panel_adm_ikb'))
+
+@dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('adm_btn'))
+async def admins_panel_mngm(callback: types.CallbackQuery, state: FSMContext):
+    if callback.data == 'add_admin_mm_btn':
         await AdminMngm.addAdmin.set()
         await callback.message.edit_text(text="Введите ник админа",
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
@@ -117,7 +123,13 @@ async def main_menu_ikb_hndl(callback: types.CallbackQuery):
         await AdminMngm.delAdmin.set()
         await callback.message.edit_text(text="Введите ник админа",
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
-
+    elif callback.data == 'get_admins_mm_btn':
+        arr_admins = catch_admins_from_database()
+        str_admins = ""
+        for each in arr_admins:
+            str_admins += each + "\n"
+        await callback.message.edit_text(text=str_admins,
+                                         reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
 
 @dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('c_btn'), state=[ReplyST.enterMessage, DeleteGroupST.enterGroupName, AdminMngm.delAdmin, AdminMngm.addAdmin])
 async def cancel_mailing_btn(callback: types.CallbackQuery, state: FSMContext):
