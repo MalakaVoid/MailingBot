@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9905d97f-3aad-42ec-80a6-d2b678360c89" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/README" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/globals.py" beforeDir="false" afterPath="$PROJECT_DIR$/globals.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README" beforeDir="false" afterPath="$PROJECT_DIR$/README" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,7 +65,7 @@
       <updated>1688737999592</updated>
       <workItem from="1688738002879" duration="4459000" />
       <workItem from="1688822392539" duration="3861000" />
-      <workItem from="1688896020168" duration="4961000" />
+      <workItem from="1688896020168" duration="5520000" />
     </task>
     <servers />
   </component>
