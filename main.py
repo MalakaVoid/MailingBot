@@ -41,7 +41,7 @@ async def add_admin_to_db_hndl(message: types.Message, state: FSMContext):
             add_admin_to_database(message.text)
             await state.finish()
             await bot.send_message(message.chat.id,
-                                   text="Новый админ успешно добавлен",
+                                   text="Новый админ успешно добавлен!",
                                    reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
 
 @dp.message_handler(state=AdminMngm.delAdmin)
@@ -52,7 +52,7 @@ async def del_admin_to_db_hndl(message: types.Message, state: FSMContext):
                 delete_admin_from_database(message.text)
                 await state.finish()
                 await bot.send_message(message.chat.id,
-                                       text="Админ успешно удален",
+                                       text="Админ успешно удален!",
                                        reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
             else:
                 await bot.send_message(message.chat.id,
@@ -74,7 +74,7 @@ async def get_message_group_title_to_delete(message: types.Message, state: FSMCo
         if is_admin_here(message.chat.username):
             if message.text not in group_title:
                 await bot.send_message(message.chat.id,
-                                       text="Данная группа не найдена, попробуйте еще раз",
+                                       text="Данная группа не найдена, попробуйте еще раз.",
                                        reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
             else:
                 await state.finish()
@@ -97,7 +97,7 @@ async def get_message_of_group(message: types.Message):
 async def main_menu_ikb_hndl(callback: types.CallbackQuery):
     if callback.data == 'start_mailing_mm_btn':
         await ReplyST.enterMessage.set()
-        await callback.message.edit_text(text='Введите сообщение для рассылки',
+        await callback.message.edit_text(text='Введите сообщение для рассылки.',
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
     elif callback.data == 'mailings_groups_mm_btn':
         str_groups = ""
@@ -107,7 +107,7 @@ async def main_menu_ikb_hndl(callback: types.CallbackQuery):
                                          reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
     elif callback.data == 'del_mailing_group_mm_btn':
         await DeleteGroupST.enterGroupName.set()
-        await callback.message.edit_text(text="Введите название группы для удаления",
+        await callback.message.edit_text(text="Введите название группы для удаления.",
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
     elif callback.data == 'admins_panel_mm_btn':
         await callback.message.edit_text(text="Выберите опцию",
@@ -115,15 +115,15 @@ async def main_menu_ikb_hndl(callback: types.CallbackQuery):
 
 @dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('adm_btn'))
 async def admins_panel_mngm(callback: types.CallbackQuery, state: FSMContext):
-    if callback.data == 'add_admin_mm_btn':
+    if callback.data == 'add_admin_adm_btn':
         await AdminMngm.addAdmin.set()
-        await callback.message.edit_text(text="Введите ник админа",
+        await callback.message.edit_text(text="Введите telegram id админа.",
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
-    elif callback.data == 'del_admin_mm_btn':
+    elif callback.data == 'del_admin_adm_btn':
         await AdminMngm.delAdmin.set()
-        await callback.message.edit_text(text="Введите ник админа",
+        await callback.message.edit_text(text="Введите telegram id админа.",
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
-    elif callback.data == 'get_admins_mm_btn':
+    elif callback.data == 'get_admins_adm_btn':
         arr_admins = catch_admins_from_database()
         str_admins = ""
         for each in arr_admins:
@@ -144,12 +144,10 @@ async def cancel_mailing_err_btn(callback: types.CallbackQuery, state: FSMContex
 @dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('msg_btn'))
 async def check_correctness_ikb_hndl(callback: types.CallbackQuery, state: FSMContext):
     if callback.data == 'send_mail_msg_btn':
-        await send_messages_to_groups(callback.message.text)
-        await callback.message.edit_text(text="Выберите опцию",
-                                         reply_markup=get_inline_keyboard('main_menu_ikb'))
+        await send_messages_to_groups(callback)
     elif callback.data == 'edit_msg_btn':
         await ReplyST.enterMessage.set()
-        await callback.message.edit_text(text='Введите сообщение для рассылки',
+        await callback.message.edit_text(text='Введите сообщение для рассылки.',
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
 
 @dp.callback_query_handler(lambda callback_querry: callback_querry.data.endswith('sh_btn'))
@@ -160,7 +158,7 @@ async def back_to_menu_btn_hndl(callback: types.CallbackQuery):
 
 async def send_main_menu_mes(chat_id):
     await bot.send_message(chat_id=chat_id,
-                           text="Выберите опцию:",
+                           text="Выберите опцию",
                            reply_markup=get_inline_keyboard('main_menu_ikb'))
 
 async def add_group_to_db(chat_ex):
@@ -168,10 +166,17 @@ async def add_group_to_db(chat_ex):
     group_chat_id.append(str(chat_ex.id))
     add_group_to_database(chat_ex.id, chat_ex.title, chat_ex.type)
 
-async def send_messages_to_groups(msg_text):
-    for each in group_chat_id:
-        await bot.send_message(chat_id=each,
-                               text=msg_text)
+async def send_messages_to_groups(callback):
+    str_result = "Сообщения отправлены.\n"
+    for i in range(len(group_chat_id)):
+        try:
+            await bot.send_message(chat_id=group_chat_id[i],
+                                   text=callback.message.text)
+        except Exception:
+            str_result+=f"В группу {group_title[i]} не удалось отправить сообщение.\n"
+    await callback.message.edit_text(text=str_result,
+                           reply_markup = get_inline_keyboard('back_mm_sh_ikb'))
+
 
 
 
