@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import StatesGroup, State
+import fileinput
 #---Начальная настройка
 bot = Bot(TOKEN_API)
 storage = MemoryStorage()
@@ -59,14 +60,29 @@ async def del_admin_to_db_hndl(message: types.Message, state: FSMContext):
                                        text="Такого админа не существует. Попробуйте еще раз.",
                                        reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
 
-@dp.message_handler(state=ReplyST.enterMessage)
+@dp.message_handler(state=ReplyST.enterMessage, content_types=["photo"])
 async def get_message_to_mail(message: types.Message, state: FSMContext):
+    if message.chat.type == "private":
+        if is_admin_here(message.chat.username):
+            await state.finish()
+            await message.photo[-1].download(destination_file='photos/photo.jpg')
+            image = open('photos/photo.jpg', 'rb')
+            await bot.send_photo(message.chat.id,
+                                 photo=image,
+                                 caption=message.caption,
+                                 reply_markup=get_inline_keyboard('check_correctness_msg_ikb'))
+
+@dp.message_handler(state=ReplyST.enterMessage, content_types=["text"])
+async def get_photo_to_mail(message: types.Message, state: FSMContext):
     if message.chat.type == "private":
         if is_admin_here(message.chat.username):
             await state.finish()
             await bot.send_message(message.chat.id,
                                    text=message.text,
                                    reply_markup=get_inline_keyboard('check_correctness_msg_ikb'))
+
+
+
 
 @dp.message_handler(state=DeleteGroupST.enterGroupName)
 async def get_message_group_title_to_delete(message: types.Message, state: FSMContext):
@@ -100,11 +116,15 @@ async def main_menu_ikb_hndl(callback: types.CallbackQuery):
         await callback.message.edit_text(text='Введите сообщение для рассылки.',
                                          reply_markup=get_inline_keyboard('cancel_mailing_ikb'))
     elif callback.data == 'mailings_groups_mm_btn':
-        str_groups = ""
-        for each in group_title:
-            str_groups += each + "\n"
-        await callback.message.edit_text(text=str_groups,
-                                         reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
+        if len(group_title) != 0:
+            str_groups = ""
+            for each in group_title:
+                str_groups += each + "\n"
+            await callback.message.edit_text(text=str_groups,
+                                             reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
+        else:
+            await callback.message.edit_text(text="Групп нет!",
+                                             reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
     elif callback.data == 'del_mailing_group_mm_btn':
         await DeleteGroupST.enterGroupName.set()
         await callback.message.edit_text(text="Введите название группы для удаления.",
@@ -170,12 +190,21 @@ async def send_messages_to_groups(callback):
     str_result = "Сообщения отправлены.\n"
     for i in range(len(group_chat_id)):
         try:
-            await bot.send_message(chat_id=group_chat_id[i],
+            if callback.message.photo:
+                await callback.message.photo[-1].download(destination_file='photos/photo.jpg')
+                image = open('photos/photo.jpg', 'rb')
+                await bot.send_photo(chat_id=group_chat_id[i],
+                                     photo=image,
+                                     caption=callback.message.caption)
+            else:
+                await bot.send_message(chat_id=group_chat_id[i],
                                    text=callback.message.text)
         except Exception:
             str_result+=f"В группу {group_title[i]} не удалось отправить сообщение.\n"
-    await callback.message.edit_text(text=str_result,
-                           reply_markup = get_inline_keyboard('back_mm_sh_ikb'))
+    await callback.message.delete_reply_markup()
+    await bot.send_message(callback.message.chat.id,
+                           text=str_result,
+                           reply_markup=get_inline_keyboard('back_mm_sh_ikb'))
 
 if __name__ == '__main__':
     executor.start_polling(dp,
