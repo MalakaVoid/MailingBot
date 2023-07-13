@@ -81,9 +81,6 @@ async def get_photo_to_mail(message: types.Message, state: FSMContext):
                                    text=message.text,
                                    reply_markup=get_inline_keyboard('check_correctness_msg_ikb'))
 
-
-
-
 @dp.message_handler(state=DeleteGroupST.enterGroupName)
 async def get_message_group_title_to_delete(message: types.Message, state: FSMContext):
     if message.chat.type == "private":
