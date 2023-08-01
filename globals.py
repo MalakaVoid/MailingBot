@@ -1,6 +1,6 @@
 #Введите между скобочек TOKEN вашего бота, который вы получили от BotFather
 #Пример TOKEN_API = "ВАШ TOKEN"
-TOKEN_API = "6198804433:AAHnP1ANjG10LMijXjuuQjGGyvtMT-mjQus"  #<-----В эти скобочки
+TOKEN_API = "5992423420:AAGyBpGZIrq8GFuJjW5Rfmntnb257ez8pSs"  #<-----В эти скобочки
 
 
 group_chat_id = []
